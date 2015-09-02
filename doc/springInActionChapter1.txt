@@ -15,5 +15,5 @@ Chapter 1 스프링 속으로
   
   
   [1] POJO의 힘
-    - POJO(Plane Old Java Bean)이란 평범한 자바객체를 말한다. 즉, Object를 상속받는 자바 클래스가 POJO이다. 
+    - POJO(Plane Old Java Bean)이란 평범한 자바객체를 말한다. 즉, Object를 상속받는 자바 클래스가 POJO이다.
     
