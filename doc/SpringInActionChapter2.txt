@@ -57,7 +57,6 @@
 	- <list> , <set> : java.util.Collection 타입의 프로퍼티를 설정할 때 쓰임 
 	- <map> : java.util.Map(키, 값 타입제한이 없음) <prop> : java.util.Properties(키,값이 모두 string)
 
-
 5. 널 와이어링
 	- <null/> 
 	- 변수에 null값을 주고싶을 때 사용하는 엘리먼트인데 왜?이걸 사용하느냐? 인위적으로 null을 셋팅해주기위해서 사용한다.
@@ -69,7 +68,81 @@
  	6.1 SpEL 표현식의 기초 
  		- 리터럴(래퍼런스의 값 또는 클래스의 상수) 값   예) <property name="count" value="#{5}" /> , <property name="count" value="the value is #{5}" />, <property name="count" value="#{89.7}" />
  		- 빈 , 프로퍼티 그리고 메소드 참조  예)<property name="instrument(setter)" value="#{saxophone(빈 id)}" /
- 		   특이한 점은 래퍼런스를 참조할 때도 value속성을 사용했다. 보통 래퍼런스는 ref 의 속성을 참고하는데 value를 사용한다는 점은 "흥미"로운 부분이다.
- 		-  	
+ 		   특이한 점은 래퍼런스를 참조할 때도 value속성을 사용했다. 보통 래퍼런스는 ref 의 속성을 참고하는데 value를 사용한다는 점은 "흥미"로운 부분이지 차이점은 없다. 
  	
- 		-  
+ 	6.2 빈, 프로퍼티, 그리고 메소드 참조
+ 		- SpEL 표현식이 수행할 수 있는 또 다른 기본 기능은 ID로 다른 빈을 참조하는 것이다. 예) <property name="setterName" value="#{beanId}" />
+ 		- SpEL 표현식을 이용한 다양한 방법 : #{beanID.property} : #{user.getSong()} user의 빈id의 song getter를 가져옴
+ 		- SpEL 의 NullPonterException을 피하는 방법  널 세이프(null-safe) 접근자 이용 한다. 
+ 			예: #{user.getSong()?.toUpperCase()} 에서 (?.) 을 사용하는데 오른쪽 toUpperCase를 엑세스 하기 전에 왼쪽항목이 null인지 확인 후 null이면 toUpperCase를 호출하지 않는다.
+ 	6.3 타입을 이용한 작업   
+ 		- 클래스 유효범위의 메소드나 상수를 이용하는 방법 : T() 사용
+ 		- T(클래스 객체) : #{T(java.util.Math)} ..
+ 		- PI의 사용법 : #{T(java.util.Math).PI}
+ 	6.4 SpEL값의 연산 수행 
+ 		- 산수/ 관계/ 논리/ 조건/ 정규표현식 이 가능하다. 
+ 		- 조건, 정규표현식에 대한 부분만 알아보자 나머지는 프로그래밍을 하시던 분이라면 다들 잘 아실듯
+ 		6.4.1 조건 평가 (삼항연산자)
+ 			- 어떤 값의 true일 경우의 값과 false일 경우의 값에 대해서는 삼항연산자(?:)를사용하면 된다. 
+ 			- (*중요) 삼항연산자의 일반적인 사용목적은 null값을 체크하여 null인 경우에 기본값을 할당하기 위함이다.
+ 			-  엘비스 연산자(?:)는 삼항연산자에서 true일 경우의 값을 제외하고 false일 경우에만 사용하는 경우를 말한다.
+ 			
+ 		6.4.2 정규 표현식
+ 			- SpEL은 matches 연산자로 표현식의 패턴 매칭을 제공
+ 			- matches 연산자는 String값 에 대한 정규표현식을 적용한다. 결과는 Boolean 값이다. 
+ 			- 이메일 주소를 포함하는 정규표현식의 예:
+ 				- <property name="validEmail" value="#{admin.email matches '[a-zA-Z0-9._%]+@[a-zA-Z0-9.-]+\\.com'}"/>
+ 				
+ 	6.5 SpEL 에서 컬렉션을 통한 선별
+ 		- <util:list> 엘리먼트는 스프링의 util 네임스페이스에서 나왔고  java.util.List 타입의 빈을 생성한다.
+ 			6.5.1 컬렉션 멤버 엑세스
+ 				- <property name="chosenCity" value="#{cities[2]}"/>
+ 				- <property name="chosenCity" value="#{cities[T(java.util.Math).random() * cities.size()])" />
+ 				- <property name="chosenCity" value="#{cities['Dallas']}" /> -- 이경우는 java.util.Map에 유용한다. []안의 값이 key값으로 조회할 경우 유용할 수 있따.  
+ 				- cities 목록의 3번째 빈을 선택하여 chosenCity에 할당한다.
+ 				
+ 				- []연산자는 java.util.Properties 컬렉션에서 값을 조회하는 데에도 사용할 수 있다. 
+ 				- <util:properties />를 이용하여 "스프링에 프로퍼티 설정 파일을 로드한다고 가정했을 때
+ 				- <util:properties id="settings" location="classpath:settings.properties" />
+ 					- 위 settings는 settings.properties 명명된 파일에 있는 항목을 모두 포함하는 java.util.Properties가 된다. 
+ 				- <property name="accessToken" value="#{settings['twitter.accessToken']}" />
+ 					- settings빈에서 이름이 twitter.accessToken 프로퍼티를 읽는다. 
+ 					
+ 				6.5.1.1 시스템환경과 시스템설정 읽는 방법 
+ 					- systemEnviornment  
+ 						- 애플리케이션을 실행하는 기기의 모든 환경변수를 포함 
+ 						- 결과는 java.util.Properties컬렉션(key,value가 모두 String)
+ 						
+ 						<  Mac OS X 기기에서 사용자의 홈 디렉터리 경로를 빈 프로퍼티에 주입하는 방법이다. >
+ 						- <property name="homePath" value="#{systemEnviornment['HOME']}"/>
+ 						
+ 					- systemProperties
+ 						- 애플리케이션 시작으로 자바에 설정된 모든 프로펕를 포함
+ 						
+ 						< application.home의 설정값을 프로펕에 주입하는 방법 >
+ 							- <property name="homePath" value="#{systemProperties['application.home']}"/>
+ 					
+ 					- String 내에서 인덱스로 단일 문자를 조회하는 String 값에 대해 사용할 수도 있다
+ 						예) 'this is a test'[3] 의 결과값은 's'이다. 
+ 						
+ 			6.5.2 컬렉션 멤버 선택
+ 				- 컬렉션 목록중의 특정한 멤버들을 갖는 객체를 수행할 수 있다.
+ 				- 셀렉션 연산자1(.?[])이용 : <property name="bigCity" value="#{cities.?[population gt 10000]}" />
+ 					- cities(컬렉션목록)에서 일치하는 목록을 선택
+ 				- 셀렉션 연산자2(.^[])이용 : <property name="bigCity" value="#{cities.^[population gt 10000]}" />
+ 					- cities(컬렉션목록)에서 처음부터 조건을 검사해 가장 처음에 일치하는 목록만 선택
+ 				- 셀렉션 연산자3(.$[])이용 : <property name="bigCity" value="#{cities.$[population gt 10000]}" />
+ 					- cities(컬렉션목록)에서 마지막부터 조건을 거사해 가장 처음에 일치하는 목록만 선택
+ 			6.5.3 컬렉션 프로젝션
+ 				- 컬렉션 각 멤버의 특정 프로퍼티를 새로운 컬렉션으로 모은다. 
+ 				- SpEL의 프로젝션 연산자(.![])
+ 				- 도시의 이름이 포함된 String 객체의 목록 
+ 					- <property name="cityName" value="#{cities.![name])" />
+ 				- 도시의 이름과 주이름 
+ 					- <property name="cityNames" value="#{cities.![name + ',' + state]} />
+ 				- 셀렉션과 프로젝션의 결합
+ 					- <property name="cityNames" value="#{cities.?[population gt 10000].!name+','+state]}" />
+ 				
+ 				- SpEL 남용하면 좋지 않으나(너무 많은 로직에서의 사용을 하지말자) 복잡한 것은 간소화시킬 수 있어 좋다. 
+ 				- String 형태의 사용이기 떄문에 테스트하기가 쉽지 않다.
+ 				- 결국은 잘!! 사용하자!!
