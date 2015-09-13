@@ -1,7 +1,7 @@
 2장 빈 와이어링 (Bean Wiring) 
 
 와이어링 - 객체간의 결합이 생길 때 직접 생성이 아닌 필요한 객체에 주입하는(DI) 행위를 와이어링 이라 한다. 
-결국 빈 와이어링이란, 스프링 컨테이너가 관리하는 빈(Bean)을 필요한 Bean에 래퍼런스를 주입하는것을 말한다. 
+즉, 빈 와이어링이란 스프링 컨테이너가 관리하는 빈(Bean)을 필요한 Bean에 래퍼런스를 주입하는것을 말한다. 
 
 1. 빈 선언
 	- 스프링 컨테이너에 의해서 빈의 생명주기가 관리되는데 설정방법 에는 두가지가 있다. 
@@ -12,8 +12,6 @@
 	2) 어노테이션 설정
 
 2. 간단한 빈 선언 
-
-
 -------------------------------------------------------------------------------------------------------------
 	선언 방법 >>
 		<bean id="빈이름" class="빈의 타입" scope="" init-method="" destroy-method="">
@@ -32,15 +30,46 @@
 	- <contructor-arg />는 bean객체안의 생성자를 나타내며 속성으로 value(값) , ref(래퍼런스) 를 사용할 수 있다. 
 	- <factory-method />는 정적 팩토리 메소드를 지원한다. (기본생성자 대신 인스턴스생성에 사용하는 정적메소드, 예로 싱글톤의 getInstance())	
 	- <bean scope="" /> scope속성은 유효범위를 설정한다. 컨테이너는 빈을 내줄 때 싱글톤(객체당 하나의 주소)지만 
-	객체가 생성될 때마다 주소를 달리해주는 객체에 대한 유효범위를 지정해줄 수 있다. 
-	Scope 값의 종류:"prototype" , "singleton" , "request" , "session" , "global-session"
+						객체가 생성될 때마다 주소를 달리해주는 객체에 대한 유효범위를 지정해줄 수 있다. 
+					Scope 값의 종류:"prototype" , "singleton" , "request" , "session" , "global-session"
 
 	자바에서는 클래스로더(classloader)당 하나의 인스턴스를 보장하지만 스프링은 애플리케이션 컨텍스트의 빈 정의 항목마다 하나의 빈 인스턴스를 보장한다. 
+
 	- init-method 속성은 빈 객체가 생성된 후 바로 호출된다. 
 	- destroy-method 속성은 빈 객체가 컨테이너에서 소멸된 직후에 호출된다. 
 		모든 bean에 init-method , destroy-method 적용하기
 			- <beans 
 			     default-init-method="",
 			     destroy-method="" /> 
+			     
 	사용 방법 : ApplicationContext ctx = new ClassPathApplicationContext("경로");
 		    ctx.getBean("빈 이름"); 
+
+3. p 네임스페이스를 이용한 프로퍼티 와이어링
+	- <property> </property>   -> <p:변수 = "값" /> , <p:참조변수-ref = "값" /> 형태룔 활용(p: 접두사 사용)
+	- xmlns="http://www.springframework.org/schema/p" 을 선언해야한다. 
+	- 기존 property보다 간결하다는 장점이 있다. 결국 선택은 본인의 몫이다. 
+	
+	
+4. 컬렉션 와이어링
+	- Collection type 의 와이어링을 하는것을 말한다. 즉, 여러 데이터(값 or 참조값)를 하나의 Collection에 담아두는것
+	- 스프링에서 지원하는 컬렉션 타입은 <list> <set> <map> <prop> 총 4가지 이다. 
+	- <list> , <set> : java.util.Collection 타입의 프로퍼티를 설정할 때 쓰임 
+	- <map> : java.util.Map(키, 값 타입제한이 없음) <prop> : java.util.Properties(키,값이 모두 string)
+
+
+5. 널 와이어링
+	- <null/> 
+	- 변수에 null값을 주고싶을 때 사용하는 엘리먼트인데 왜?이걸 사용하느냐? 인위적으로 null을 셋팅해주기위해서 사용한다.
+		무슨말이냐 하면 엘리먼트를 생성할 때 default 값이 정해져 있는 경우가 있을 수도 있는데 <null/> 사용해줌으로 써 null로 셋팅해야될 경우에 사용한다. 
+		
+ 6. 표현식 와이어링
+ 	- 스프링은 "스프링 표현식 언어 : SpEL(Spring Expression Language)"를 제공한다. 
+ 	- SpEL 구문은  " #{ } " 형태로 표현된다. 
+ 	6.1 SpEL 표현식의 기초 
+ 		- 리터럴(래퍼런스의 값 또는 클래스의 상수) 값   예) <property name="count" value="#{5}" /> , <property name="count" value="the value is #{5}" />, <property name="count" value="#{89.7}" />
+ 		- 빈 , 프로퍼티 그리고 메소드 참조  예)<property name="instrument(setter)" value="#{saxophone(빈 id)}" /
+ 		   특이한 점은 래퍼런스를 참조할 때도 value속성을 사용했다. 보통 래퍼런스는 ref 의 속성을 참고하는데 value를 사용한다는 점은 "흥미"로운 부분이다.
+ 		-  	
+ 	
+ 		-  
