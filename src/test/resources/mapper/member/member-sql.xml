@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.todos.dto.TodoMember">
+
+	<insert id="insertMember">
+		INSERT INTO MEMBER(
+		MEMBER_NAME,
+		MEMBER_ID,
+		MEMBER_PWD)
+		VALUES
+		(
+		#{MEMBER_NAME},
+		#{MEMBER_ID},
+		#{MEMBER_PWD}
+		)
+	</insert>
+
+	<update id="updateMember">
+		UPDATE MEMBER
+		SET MEMBER_NAME= #{MEMBER_NAME}
+		WHERE
+		MEMBER_NO = #{MEMBER_NO}
+	</update>
+
+	<delete id="deleteMember">
+		DELETE FROM MEMBER
+		WHERE MEMBER_NO = #{MEMBER_NO}
+	</delete>
+
+	<select id="selectMember">
+		SELECT
+			MEMBER_NO,
+			MEMBER_NAME,
+			MEMBER_ID,
+			MEMBER_PWDS
+		FROM MEMBER
+		WHERE MEMBER_NO = #{MEMBER_NO};
+	</select>
+
+
+
+</mapper>

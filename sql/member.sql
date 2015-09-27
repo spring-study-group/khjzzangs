@@ -9,7 +9,7 @@ member_pwd varchar(15) not null);
 
 insert into member(member_name, member_id, member_pwd) values (#{member_name},#{member_id}, #{member_pwd});
 
-update member set member_name= #{member_name} where member_no = #{member_n}
+update member set member_name= #{member_name} where member_no = #{member_no}
 
 delete from member where member_no = #{member_no}
 

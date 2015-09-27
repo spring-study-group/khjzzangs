@@ -1,6 +1,6 @@
 package com.spring.todos.dto;
 
-public class TodoRecord {
+public class Todos {
 	int todo_no;
 	char todo_list;
 	byte todo_ok;
